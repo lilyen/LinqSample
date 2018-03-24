@@ -127,6 +127,21 @@ namespace LinqTests
 
             expected.ToExpectedObject().ShouldEqual(acturl.ToList());
         }
+
+        [TestMethod]
+        public void f()
+        {
+            var enumerable = RepositoryFactory.GetEmployees();
+            IEnumerable<Employee> actual = enumerable.LilyTake(2);
+
+            var expected = new List<Employee>()
+            {
+                new Employee{Name="Joe", Role=RoleType.Engineer, MonthSalary=100, Age=44, WorkingYear=2.6 } ,
+                new Employee{Name="Tom", Role=RoleType.Engineer, MonthSalary=140, Age=33, WorkingYear=2.6} ,
+            };
+
+            expected.ToExpectedObject().ShouldEqual(actual.ToList());
+        }
     }
 }
 
@@ -208,4 +223,20 @@ internal static class YourOwnLinq
             yield return predicate(url);
         }
     }
+
+    public static IEnumerable<TSource> LilyTake<TSource>(this IEnumerable<TSource> items, int number)
+    {
+
+        //return items.LilyWhere((item, i) => i < index); //where run all 8
+
+        var index = 0;
+        var enumerator = items.GetEnumerator();
+        while (enumerator.MoveNext() && index<number)
+        {
+            yield return enumerator.Current;
+            index++;
+        }
+    }
+
+
 }
