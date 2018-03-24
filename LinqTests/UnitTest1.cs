@@ -171,6 +171,21 @@ namespace LinqTests
 
             expected.ToExpectedObject().ShouldEqual(actual.ToList());
         }
+
+        [TestMethod]
+        public void TestTakeWhile()
+        {
+            var enumerable = RepositoryFactory.GetEmployees();
+            var actual = enumerable.LilyTakeWhile(2, e=>e.MonthSalary>150);
+
+            var expected = new List<Employee>()
+            {
+                new Employee{Name="Kevin", Role=RoleType.Manager, MonthSalary=380, Age=55, WorkingYear=2.6} ,
+                new Employee{Name="Bas", Role=RoleType.Engineer, MonthSalary=280, Age=36, WorkingYear=2.6} ,
+            };
+
+            expected.ToExpectedObject().ShouldEqual(actual.ToList());
+        }
     }
 }
 
@@ -216,6 +231,8 @@ internal static class WithoutLinq
             yield return predicate(url);
         }
     }
+
+    
 }
 
 internal static class YourOwnLinq
@@ -291,5 +308,20 @@ internal static class YourOwnLinq
             index += pageSize;
         }
 
+    }
+
+    public static IEnumerable<TSource> LilyTakeWhile<TSource>(this IEnumerable<TSource> items, int i, Func<TSource, bool> func)
+    {
+        var index = 0;
+        var enumerator = items.GetEnumerator();
+
+        while (enumerator.MoveNext() && index < i)
+        {
+            if (func(enumerator.Current))
+            {
+                yield return enumerator.Current;
+                index++;
+            }
+        }
     }
 }
