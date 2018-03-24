@@ -144,7 +144,7 @@ namespace LinqTests
         }
 
         [TestMethod]
-        public void skip()
+        public void Testskip()
         {
             var enumerable = RepositoryFactory.GetEmployees();
             IEnumerable<Employee> actual = enumerable.LilySkip(6);
@@ -255,9 +255,6 @@ internal static class YourOwnLinq
 
     public static IEnumerable<TSource> LilySkip<TSource>(this IEnumerable<TSource> items, int number)
     {
-
-        //return items.LilyWhere((item, i) => i < index); //where run all 8
-
         var index = 0;
         var enumerator = items.GetEnumerator();
         while (enumerator.MoveNext())
