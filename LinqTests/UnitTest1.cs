@@ -47,7 +47,7 @@ namespace LinqTests
         public void find_employee_that_age_older_than_30_and()
         {
             var employees = RepositoryFactory.GetEmployees();
-            var actual = employees.Find((p, i) => p.Age > 30 && i>=2);
+            var actual = employees.Find((p, i) => p.Age > 30 && i >= 2);
 
             var expected = new List<Employee>()
             {
@@ -72,6 +72,23 @@ namespace LinqTests
             };
 
             expected.ToExpectedObject().ShouldEqual(actual.ToList());
+        }
+
+        [TestMethod]
+        public void changeHttpToHttps()
+        {
+            var urls = RepositoryFactory.GetUrls();
+            var httpsUrls = WithoutLinq.ToHttps(urls);
+
+            var expected = new List<string>()
+            {
+                "https://tw.yahoo.com",
+                "https://facebook.com",
+                "https://twitter.com",
+                "https://github.com"
+            };
+
+            expected.ToExpectedObject().ShouldEqual(httpsUrls.ToList());
         }
     }
 }
@@ -102,7 +119,14 @@ internal static class WithoutLinq
             index++;
         }
     }
-    
+
+    public static IEnumerable<string> ToHttps(IEnumerable<string> urls)
+    {
+        foreach (var url in urls)
+        {
+            yield return url.Replace("http://", "https://");
+        }
+    }
 }
 
 internal static class YourOwnLinq
