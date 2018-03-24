@@ -112,7 +112,7 @@ namespace LinqTests
         public void TestSelect()
         {
             var enumerable = RepositoryFactory.GetEmployees();
-            var acturl = enumerable.LilyWhere(e => e.Age < 25).LilySelect(w=>$"{w.Role}:{w.Name}");
+            var acturl = enumerable.LilyWhere(e => e.Age < 25).LilySelect(w => $"{w.Role}:{w.Name}");
 
             foreach (var titleNeam in acturl)
             {
@@ -138,6 +138,21 @@ namespace LinqTests
             {
                 new Employee{Name="Joe", Role=RoleType.Engineer, MonthSalary=100, Age=44, WorkingYear=2.6 } ,
                 new Employee{Name="Tom", Role=RoleType.Engineer, MonthSalary=140, Age=33, WorkingYear=2.6} ,
+            };
+
+            expected.ToExpectedObject().ShouldEqual(actual.ToList());
+        }
+
+        [TestMethod]
+        public void skip()
+        {
+            var enumerable = RepositoryFactory.GetEmployees();
+            IEnumerable<Employee> actual = enumerable.LilySkip(6);
+
+            var expected = new List<Employee>()
+            {
+                new Employee{Name="Frank", Role=RoleType.Engineer, MonthSalary=120, Age=16, WorkingYear=2.6} ,
+                new Employee{Name="Joey", Role=RoleType.Engineer, MonthSalary=250, Age=40, WorkingYear=2.6},
             };
 
             expected.ToExpectedObject().ShouldEqual(actual.ToList());
@@ -231,12 +246,28 @@ internal static class YourOwnLinq
 
         var index = 0;
         var enumerator = items.GetEnumerator();
-        while (enumerator.MoveNext() && index<number)
+        while (enumerator.MoveNext() && index < number)
         {
             yield return enumerator.Current;
             index++;
         }
     }
 
+    public static IEnumerable<TSource> LilySkip<TSource>(this IEnumerable<TSource> items, int number)
+    {
+
+        //return items.LilyWhere((item, i) => i < index); //where run all 8
+
+        var index = 0;
+        var enumerator = items.GetEnumerator();
+        while (enumerator.MoveNext())
+        {
+            if (index >= number)
+            {
+                yield return enumerator.Current;
+            }
+            index++;
+        }
+    }
 
 }
