@@ -186,6 +186,24 @@ namespace LinqTests
 
             expected.ToExpectedObject().ShouldEqual(actual.ToList());
         }
+
+        [TestMethod]
+        public void TestSkipWhile()
+        {
+            var employees = RepositoryFactory.GetEmployees();
+            var actual = employees.LilySkipWhile(3, e => e.MonthSalary < 150);
+
+            var expected = new List<Employee>()
+            {
+                new Employee{Name="Kevin", Role=RoleType.Manager, MonthSalary=380, Age=55, WorkingYear=2.6} ,
+                new Employee{Name="Bas", Role=RoleType.Engineer, MonthSalary=280, Age=36, WorkingYear=2.6} ,
+                new Employee{Name="Mary", Role=RoleType.OP, MonthSalary=180, Age=26, WorkingYear=2.6} ,
+                new Employee{Name="Frank", Role=RoleType.Engineer, MonthSalary=120, Age=16, WorkingYear=2.6} ,
+                new Employee{Name="Joey", Role=RoleType.Engineer, MonthSalary=250, Age=40, WorkingYear=2.6},
+            };
+
+            expected.ToExpectedObject().ShouldEqual(actual.ToList());
+        }
     }
 }
 
@@ -322,6 +340,23 @@ internal static class YourOwnLinq
                 yield return enumerator.Current;
                 index++;
             }
+        }
+    }
+
+    public static IEnumerable<TSource> LilySkipWhile<TSource>(this IEnumerable<TSource> items, int count, Func<TSource, bool> predicate)
+    {
+        var index = 0;
+        var enumerator = items.GetEnumerator();
+
+        while (enumerator.MoveNext())
+        {
+            if (predicate(enumerator.Current) && index<count)
+            {
+                index++;
+                continue;
+            }
+
+            yield return enumerator.Current;
         }
     }
 }
