@@ -162,7 +162,7 @@ namespace LinqTests
         public void TestSum()
         {
             var enumerable = RepositoryFactory.GetEmployees();
-            var actual = enumerable.LilyGetSum(3, e=>e.MonthSalary);
+            var actual = enumerable.LilyGetPageSum(3, e => e.MonthSalary);
 
             var expected = new List<int>()
             {
@@ -176,7 +176,7 @@ namespace LinqTests
         public void TestTakeWhile()
         {
             var enumerable = RepositoryFactory.GetEmployees();
-            var actual = enumerable.LilyTakeWhile(2, e=>e.MonthSalary>150);
+            var actual = enumerable.LilyTakeWhile(2, e => e.MonthSalary > 150);
 
             var expected = new List<Employee>()
             {
@@ -250,7 +250,7 @@ internal static class WithoutLinq
         }
     }
 
-    
+
 }
 
 internal static class YourOwnLinq
@@ -316,16 +316,36 @@ internal static class YourOwnLinq
         }
     }
 
-    public static IEnumerable<int> LilyGetSum<TSource>(this IEnumerable<TSource> items, int pageSize, Func<TSource, int> summarize)
+    public static IEnumerable<int> LilyGetPageSum<TSource>(this IEnumerable<TSource> items, int pageSize, Func<TSource, int> summarize)
     {
         var index = 0;
 
-        while (index < items.Count())
-        {
-            yield return items.Skip(index).Take(pageSize).Sum(summarize);
-            index += pageSize;
-        }
+        //while (index < items.Count())
+        //{
+        //    yield return items.Skip(index).Take(pageSize).Sum(summarize);
+        //    index += pageSize;
+        //}
 
+        //var result = items.LilySkip(index).LilyTake(pageSize).Sum(summarize);
+        //while (result != 0)
+        //{
+        //    yield return result;
+        //    index += pageSize;
+        //    result = items.LilySkip(index).LilyTake(pageSize).Sum(summarize);
+        //}
+
+        int result;
+        do
+        {
+            result = items.LilySkip(index).LilyTake(pageSize).Sum(summarize);
+            if (result == 0)
+            {
+                yield break;
+            }
+
+            yield return result;
+            index += pageSize;
+        } while (true);
     }
 
     public static IEnumerable<TSource> LilyTakeWhile<TSource>(this IEnumerable<TSource> items, int count, Func<TSource, bool> func)
