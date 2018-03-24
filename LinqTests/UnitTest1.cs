@@ -157,6 +157,20 @@ namespace LinqTests
 
             expected.ToExpectedObject().ShouldEqual(actual.ToList());
         }
+
+        [TestMethod]
+        public void TestSum()
+        {
+            var enumerable = RepositoryFactory.GetEmployees();
+            var actual = enumerable.LilyGetSum(3, e=>e.MonthSalary);
+
+            var expected = new List<int>()
+            {
+                620,540,370
+            };
+
+            expected.ToExpectedObject().ShouldEqual(actual.ToList());
+        }
     }
 }
 
@@ -267,4 +281,15 @@ internal static class YourOwnLinq
         }
     }
 
+    public static IEnumerable<int> LilyGetSum<TSource>(this IEnumerable<TSource> items, int pageSize, Func<TSource, int> summarize)
+    {
+        var index = 0;
+
+        while (index < items.Count())
+        {
+            yield return items.Skip(index).Take(pageSize).Sum(summarize);
+            index += pageSize;
+        }
+
+    }
 }
