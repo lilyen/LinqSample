@@ -95,7 +95,7 @@ namespace LinqTests
         public void GetUrlLength()
         {
             var urls = RepositoryFactory.GetUrls();
-            IEnumerable<int> httpsUrls = WithoutLinq.GetUrlsLength(urls);
+            IEnumerable<int> httpsUrls = WithoutLinq.GetUrlsLength(urls, url => url.Length);
 
             var expected = new List<int>()
             {
@@ -106,6 +106,21 @@ namespace LinqTests
             };
 
             expected.ToExpectedObject().ShouldEqual(httpsUrls.ToList());
+        }
+
+        [TestMethod]
+        public void TestSelect()
+        {
+            var enumerable = RepositoryFactory.GetEmployees();
+            var acturl = enumerable.LilyWhere(e => e.Age < 25).LilySelect(w=>$"{w.Role}:{w.Name}");
+
+            var expected = new List<string>()
+            {
+                "OP:Andy",
+                "Engineer:Frank"
+            };
+
+            expected.ToExpectedObject().ShouldEqual(acturl.ToList());
         }
     }
 }
@@ -145,11 +160,11 @@ internal static class WithoutLinq
         }
     }
 
-    public static IEnumerable<int> GetUrlsLength(IEnumerable<string> urls)
+    public static IEnumerable<TResult> GetUrlsLength<TSource, TResult>(IEnumerable<TSource> urls, Func<TSource, TResult> predicate)
     {
         foreach (var url in urls)
         {
-            yield return url.Length;
+            yield return predicate(url);
         }
     }
 }
@@ -178,6 +193,14 @@ internal static class YourOwnLinq
             }
 
             index++;
+        }
+    }
+
+    public static IEnumerable<TResult> LilySelect<TSource, TResult>(this IEnumerable<TSource> urls, Func<TSource, TResult> predicate)
+    {
+        foreach (var url in urls)
+        {
+            yield return predicate(url);
         }
     }
 }
