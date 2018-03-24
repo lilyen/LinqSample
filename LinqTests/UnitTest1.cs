@@ -44,6 +44,22 @@ namespace LinqTests
         }
 
         [TestMethod]
+        public void find_employee_that_age_older_than_30_and()
+        {
+            var employees = RepositoryFactory.GetEmployees();
+            var actual = employees.Find((p, i) => p.Age > 30 && i>=2);
+
+            var expected = new List<Employee>()
+            {
+                new Employee{Name="Kevin", Role=RoleType.Manager, MonthSalary=380, Age=55, WorkingYear=2.6} ,
+                new Employee{Name="Bas", Role=RoleType.Engineer, MonthSalary=280, Age=36, WorkingYear=2.6} ,
+                new Employee{Name="Joey", Role=RoleType.Engineer, MonthSalary=250, Age=40, WorkingYear=2.6}
+            };
+
+            expected.ToExpectedObject().ShouldEqual(actual.ToList());
+        }
+
+        [TestMethod]
         public void find_products_that_price_between_200_and_500_Linq()
         {
             var products = RepositoryFactory.GetProducts();
@@ -67,6 +83,31 @@ internal static class WithoutLinq
         foreach (var product in products)
         {
             if (predicate(product))
+            {
+                yield return product;
+            }
+        }
+    }
+
+    public static IEnumerable<T> Find<T>(this IEnumerable<T> products, Func<T, int, bool> predicate)
+    {
+        var index = 0;
+        foreach (var product in products)
+        {
+            if (predicate(product, index))
+            {
+                yield return product;
+            }
+
+            index++;
+        }
+    }
+
+    public static IEnumerable<T> Findso2<T>(this IEnumerable<T> products, Func<T, int, bool> predicate)
+    {
+        foreach (var product in products)
+        {
+            if (predicate(product, 2))
             {
                 yield return product;
             }
