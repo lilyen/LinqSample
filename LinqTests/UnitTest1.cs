@@ -114,6 +114,11 @@ namespace LinqTests
             var enumerable = RepositoryFactory.GetEmployees();
             var acturl = enumerable.LilyWhere(e => e.Age < 25).LilySelect(w=>$"{w.Role}:{w.Name}");
 
+            foreach (var titleNeam in acturl)
+            {
+                Console.WriteLine(titleNeam);
+            }
+
             var expected = new List<string>()
             {
                 "OP:Andy",
