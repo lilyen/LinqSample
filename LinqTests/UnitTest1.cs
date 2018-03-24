@@ -14,7 +14,7 @@ namespace LinqTests
         public void find_products_that_price_between_200_and_500()
         {
             var products = RepositoryFactory.GetProducts();
-            var actual = products.FindProductByPrice(product => FindTopSaleProduct(product));
+            var actual = products.FindProductByPrice(product => product.FindTopSaleProduct());
 
             var expected = new List<Product>()
             {
@@ -23,11 +23,6 @@ namespace LinqTests
             };
 
             expected.ToExpectedObject().ShouldEqual(actual.ToList());
-        }
-
-        private static bool FindTopSaleProduct(Product product)
-        {
-            return product.Price > 200 && product.Price < 500 && product.Cost > 30;
         }
 
         [TestMethod]
