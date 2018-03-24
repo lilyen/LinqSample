@@ -350,7 +350,7 @@ internal static class YourOwnLinq
 
         while (enumerator.MoveNext())
         {
-            if (predicate(enumerator.Current) && index<count)
+            if (index < count && predicate(enumerator.Current))
             {
                 index++;
                 continue;
