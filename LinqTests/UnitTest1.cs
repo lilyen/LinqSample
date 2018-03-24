@@ -310,12 +310,12 @@ internal static class YourOwnLinq
 
     }
 
-    public static IEnumerable<TSource> LilyTakeWhile<TSource>(this IEnumerable<TSource> items, int i, Func<TSource, bool> func)
+    public static IEnumerable<TSource> LilyTakeWhile<TSource>(this IEnumerable<TSource> items, int count, Func<TSource, bool> func)
     {
         var index = 0;
         var enumerator = items.GetEnumerator();
 
-        while (enumerator.MoveNext() && index < i)
+        while (enumerator.MoveNext() && index < count)
         {
             if (func(enumerator.Current))
             {
