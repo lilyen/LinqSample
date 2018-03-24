@@ -102,19 +102,33 @@ internal static class WithoutLinq
             index++;
         }
     }
+    
+}
 
-    public static IEnumerable<T> Findso2<T>(this IEnumerable<T> products, Func<T, int, bool> predicate)
+internal static class YourOwnLinq
+{
+    public static IEnumerable<TSource> LilyWhere<TSource>(this IEnumerable<TSource> items, Func<TSource, bool> predicate)
     {
-        foreach (var product in products)
+        foreach (var item in items)
         {
-            if (predicate(product, 2))
+            if (predicate(item))
             {
-                yield return product;
+                yield return item;
             }
         }
     }
-}
 
-internal class YourOwnLinq
-{
+    public static IEnumerable<TSource> LilyWhere<TSource>(this IEnumerable<TSource> items, Func<TSource, int, bool> predicate)
+    {
+        var index = 0;
+        foreach (var item in items)
+        {
+            if (predicate(item, index))
+            {
+                yield return item;
+            }
+
+            index++;
+        }
+    }
 }
