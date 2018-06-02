@@ -4,6 +4,7 @@ using LinqTests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace LinqTests
 {
@@ -218,6 +219,15 @@ namespace LinqTests
             var employees = RepositoryFactory.GetEmployees();
             Assert.IsTrue(employees.LilyAny());
         }
+
+        [TestMethod]
+        public void TestAll()
+        {
+            var employees = RepositoryFactory.GetEmployees();
+            Assert.IsFalse(employees.LilyAll(x=>x.MonthSalary>200));
+        }
+
+
     }
 }
 
@@ -278,6 +288,20 @@ internal static class YourOwnLinq
                 yield return item;
             }
         }
+    }
+
+    public static bool LilyAll<TSource>(this IEnumerable<TSource> employees, Func<TSource, bool> func)
+    {
+        var enumerator = employees.GetEnumerator();
+        while (enumerator.MoveNext())
+        {
+            if (!func(enumerator.Current))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public static bool LilyAny<TSource>(this IEnumerable<TSource> items, Func<TSource, bool> predicate)
