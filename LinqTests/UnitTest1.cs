@@ -204,6 +204,22 @@ namespace LinqTests
 
             expected.ToExpectedObject().ShouldEqual(actual.ToList());
         }
+
+        [TestMethod]
+        public void TestAny()
+        {
+            var employees = RepositoryFactory.GetEmployees();
+            Assert.IsFalse(employees.LilyAny(e => e.MonthSalary > 500));
+            
+
+        }
+
+        [TestMethod]
+        public void TestAnyNull()
+        {
+            var employees = RepositoryFactory.GetEmployees();
+            Assert.IsTrue(employees.LilyAny());
+        }
     }
 }
 
@@ -264,6 +280,19 @@ internal static class YourOwnLinq
                 yield return item;
             }
         }
+    }
+
+    public static bool LilyAny<TSource>(this IEnumerable<TSource> items, Func<TSource, bool> predicate)
+    {
+        foreach (var item in items)
+        {
+            if (predicate(item))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static IEnumerable<TSource> LilyWhere<TSource>(this IEnumerable<TSource> items, Func<TSource, int, bool> predicate)
@@ -378,5 +407,11 @@ internal static class YourOwnLinq
 
             yield return enumerator.Current;
         }
+    }
+
+    public static bool LilyAny<TSource>(this IEnumerable<TSource> items)
+    {
+        var enumerator = items.GetEnumerator();
+        return enumerator.MoveNext();
     }
 }
