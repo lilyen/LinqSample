@@ -3,6 +3,7 @@ using ExpectedObjects;
 using LinqTests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 
@@ -227,7 +228,24 @@ namespace LinqTests
             Assert.IsFalse(employees.LilyAll(x=>x.MonthSalary>200));
         }
 
+        [TestMethod]
+        public void TestFirstOrDefault()
+        {
+            var employees = RepositoryFactory.GetEmployees();
+            Assert.AreEqual("Kevin",employees.LilyFirstOrDefault(x=>x.MonthSalary>200).Name);
+            Assert.IsNull(employees.LilyFirstOrDefault(x=>x.MonthSalary>500));
 
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestFitst()
+        {
+            var employees = RepositoryFactory.GetEmployees();
+            employees.LilyFirst(e => e.MonthSalary > 500);
+        }
+
+        
     }
 }
 
@@ -288,6 +306,34 @@ internal static class YourOwnLinq
                 yield return item;
             }
         }
+    }
+
+    public static TSource LilyFirst<TSource>(this IEnumerable<TSource> enumerable, Func<TSource, bool> func)
+    {
+        var enumerator = enumerable.GetEnumerator();
+        while (enumerator.MoveNext())
+        {
+            if (func(enumerator.Current))
+            {
+                return enumerator.Current;
+            }
+        }
+
+        throw new ArgumentNullException();
+    }
+
+    public static TSource LilyFirstOrDefault<TSource>(this IEnumerable<TSource> employees, Func<TSource, bool> predicate)
+    {
+        var enumerator = employees.GetEnumerator();
+        while (enumerator.MoveNext())
+        {
+            if (predicate(enumerator.Current))
+            {
+                return enumerator.Current;
+            }
+        }
+
+        return default(TSource);
     }
 
     public static bool LilyAll<TSource>(this IEnumerable<TSource> employees, Func<TSource, bool> func)
