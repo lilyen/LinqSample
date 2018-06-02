@@ -210,8 +210,6 @@ namespace LinqTests
         {
             var employees = RepositoryFactory.GetEmployees();
             Assert.IsFalse(employees.LilyAny(e => e.MonthSalary > 500));
-            
-
         }
 
         [TestMethod]
