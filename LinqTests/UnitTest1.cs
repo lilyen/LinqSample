@@ -282,7 +282,96 @@ namespace LinqTests
 
             expected.ShouldEqual(RepositoryFactory.GetEmployees().LilyDistinct(new MyCompareRole()).ToList());
         }
+        [TestMethod]
+        public void MyTestMethod()
+        {
+           var expected = new Employee()
+            {
+                Name = "lulu"
+            };
+            var employees = RepositoryFactory.GetEmployees();
+            var younger = employees.Where(x=>x.Age<=15);
+            var actual = DunkDefaultIfEmpty(younger);
+            expected.ToExpectedObject().ShouldEqual(actual.ToList());
+        }
+        [TestMethod]
+        public void TestContain()
+        {
+            var products = RepositoryFactory.GetProducts();
+            var luckyProduct = new Product{ Id = 4, Cost = 41, Price = 410, Supplier = "Odd-e" };
+            Assert.IsTrue(products.LilyContain(luckyProduct, new luckyCompary()));
+        }
 
+        [TestMethod]
+        public void TestSequence()
+        {
+            var products = RepositoryFactory.GetProducts();
+            var anotherProducts = RepositoryFactory.GetAnotherProducts();
+            Assert.IsFalse(LilySequence(products, anotherProducts, new luckyCompary()));
+        }
+
+        [TestMethod]
+        public void TestSequence2()
+        {
+            var products = RepositoryFactory.GetProducts();
+            var anotherProducts = RepositoryFactory.GetProductsS();
+            Assert.IsFalse(LilySequence(products, anotherProducts, new luckyCompary()));
+        }
+
+        [TestMethod]
+        public void TestSequence3()
+        {
+            var products = RepositoryFactory.GetProducts();
+            var anotherProducts = RepositoryFactory.GetProducts();
+            Assert.IsTrue(LilySequence(products, anotherProducts, new luckyCompary()));
+        }
+
+        [TestMethod]
+        public void TestSequence4()
+        {
+            var products = RepositoryFactory.GetProductsS();
+            var anotherProducts = RepositoryFactory.GetProducts();
+            Assert.IsFalse(LilySequence(products, anotherProducts, new luckyCompary()));
+        }
+
+        private bool LilySequence<TSource>(IEnumerable<TSource> sources, IEnumerable<TSource> anotherProducts, IEqualityComparer<TSource> Compary)
+        {
+            var source = sources.GetEnumerator();
+            var anotherSource = anotherProducts.GetEnumerator();
+
+            while (true)
+            {
+                var a = source.MoveNext();
+                var b = anotherSource.MoveNext();
+
+                if (a && b)
+                {
+                    if (!Compary.Equals(source.Current, anotherSource.Current))
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return source.Current == null && anotherSource.Current == null;
+        }
+
+        private static IEnumerable<Employee> DunkDefaultIfEmpty(IEnumerable<Employee> younger)
+        {
+            foreach (var employee in younger)
+            {
+                if (employee!=null)
+                {
+                    yield return  employee;
+                }
+            }
+
+            yield return new Employee() {Name = "lulu"};
+        }
     }
 }
 
@@ -560,6 +649,20 @@ internal static class YourOwnLinq
         var enumerator = items.GetEnumerator();
         return enumerator.MoveNext();
     }
+
+    public static bool LilyContain<TSource>(this IEnumerable<TSource> sources, TSource luckyProduct, IEqualityComparer<TSource> luckyCompary)
+    {
+        var enumerator = sources.GetEnumerator();
+        while (enumerator.MoveNext())
+        {
+            if (luckyCompary.Equals(enumerator.Current, luckyProduct))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
 
 internal class MyCompareRole : IEqualityComparer<Employee>
@@ -574,3 +677,17 @@ internal class MyCompareRole : IEqualityComparer<Employee>
         return obj.Role.GetHashCode();
     }
 }
+
+internal class luckyCompary : IEqualityComparer<Product>
+{
+    public bool Equals(Product x, Product y)
+    {
+        return x.Cost == y.Cost && x.Id==y.Id && x.Price==y.Price && x.Supplier == y.Supplier;
+    }
+
+    public int GetHashCode(Product obj)
+    {
+        return 0;
+    }
+}
+
