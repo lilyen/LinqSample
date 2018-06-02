@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using ExpectedObjects;
 using LinqTests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -267,6 +268,21 @@ namespace LinqTests
             var employees = RepositoryFactory.GetEmployees();
             employees.LilySingle(e => e.Role == RoleType.Engineer);
         }
+
+        [TestMethod]
+        public void TestDistinct()
+        {
+            var expected = new List<Employee>
+            {
+                new Employee{Name="Joe", Role=RoleType.Engineer, MonthSalary=100, Age=44, WorkingYear=2.6 } ,
+                new Employee{Name="Kevin", Role=RoleType.Manager, MonthSalary=380, Age=55, WorkingYear=2.6} ,
+                new Employee{Name="Andy", Role=RoleType.OP, MonthSalary=80, Age=22, WorkingYear=2.6} ,             
+            }.ToExpectedObject();
+
+
+            expected.ShouldEqual(RepositoryFactory.GetEmployees().LilyDistinct(new MyCompareRole()).ToList());
+        }
+
     }
 }
 
@@ -318,6 +334,20 @@ internal static class WithoutLinq
 
 internal static class YourOwnLinq
 {
+    public static IEnumerable<TSource> LilyDistinct<TSource>(this IEnumerable<TSource> source,
+        IEqualityComparer<TSource> MyCompare)
+    {
+        var compare = MyCompare ?? EqualityComparer<TSource>.Default;
+        var hashSet = new HashSet<TSource>(compare);
+        var enumerator = source.GetEnumerator();
+        while (enumerator.MoveNext())
+        {
+            if (hashSet.Add(enumerator.Current))
+            {
+                yield return enumerator.Current;
+            }
+        }
+    }
     public static TSource LilySingle<TSource>(this IEnumerable<TSource> employees, Func<TSource, bool> predicate)
     {
         var enumerator = employees.GetEnumerator();
@@ -529,5 +559,18 @@ internal static class YourOwnLinq
     {
         var enumerator = items.GetEnumerator();
         return enumerator.MoveNext();
+    }
+}
+
+internal class MyCompareRole : IEqualityComparer<Employee>
+{
+     public bool Equals(Employee x, Employee y)
+     {
+         return x.Role == y.Role;
+     }
+
+    public int GetHashCode(Employee obj)
+    {
+        return obj.Role.GetHashCode();
     }
 }
