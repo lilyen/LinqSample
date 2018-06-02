@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
 
 namespace LinqTests
 {
@@ -245,7 +246,27 @@ namespace LinqTests
             employees.LilyFirst(e => e.MonthSalary > 500);
         }
 
-        
+        [TestMethod]
+        public void TestSinge()
+        {
+            var employees = RepositoryFactory.GetEmployees();
+            Assert.AreEqual(RoleType.Manager, employees.LilySingle(e => e.Role == RoleType.Manager).Role);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void TestSingle2()
+        {
+            var employees = RepositoryFactory.GetEmployees();
+            employees.LilySingle(e => e.Role == RoleType.Unknown);
+        }
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void TestSingle3()
+        {
+            var employees = RepositoryFactory.GetEmployees();
+            employees.LilySingle(e => e.Role == RoleType.Engineer);
+        }
     }
 }
 
@@ -297,6 +318,33 @@ internal static class WithoutLinq
 
 internal static class YourOwnLinq
 {
+    public static TSource LilySingle<TSource>(this IEnumerable<TSource> employees, Func<TSource, bool> predicate)
+    {
+        var enumerator = employees.GetEnumerator();
+        var index = 0;
+        TSource e = default(TSource);
+        while (enumerator.MoveNext() )
+        {
+            if (predicate(enumerator.Current))
+            {
+                index += 1;
+                e = enumerator.Current;
+            }
+
+            if (index > 1)
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
+        if (index==0)
+        {
+            throw new InvalidOperationException();
+        }
+
+        return e;
+    }
+
     public static IEnumerable<TSource> LilyWhere<TSource>(this IEnumerable<TSource> items, Func<TSource, bool> predicate)
     {
         foreach (var item in items)
